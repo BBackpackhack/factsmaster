@@ -19,7 +19,7 @@ const shuffle = (a) => {
   return array;
 };
 
-const validateProduct = (event, hFactor, vFactor) => {
+const validateAnswer = (event, hFactor, vFactor, operator) => {
   const element = event.target;
   const answer = element.value;
   element.classList.remove("correct", "incorrect");
@@ -28,7 +28,11 @@ const validateProduct = (event, hFactor, vFactor) => {
     return;
   }
 
-  const answerIsCorrect = Number.parseInt(answer) === hFactor * vFactor;
+  const answerIsCorrect =
+    Number.parseInt(answer) ===
+    (operator === "add" ? hFactor + vFactor : hFactor * vFactor);
+
+  console.log("Answer is correct?", answerIsCorrect);
 
   if (answerIsCorrect) {
     element.classList.add("correct");
@@ -37,6 +41,12 @@ const validateProduct = (event, hFactor, vFactor) => {
     element.classList.add("incorrect");
     return false;
   }
+};
+
+const validateGrid = () => {
+  //todo
+  console.log("validate grid");
+  return;
 };
 
 const highlightFactors = (hFactor, vFactor) => {
@@ -68,7 +78,7 @@ const handleKeypress = (event, x, y, length) => {
         newY = y;
       }
 
-      console.log("Enter", newX, newY, length);
+      //console.log("Enter", newX, newY, length);
       moveTo(newX, newY);
       break;
     default:
@@ -79,7 +89,7 @@ const handleKeypress = (event, x, y, length) => {
 const handleKeydown = (event, x, y, length) => {
   let newX = x;
   let newY = y;
-  console.log(event);
+  //console.log(event);
 
   const fieldIsBlank = event.target.value.trim() === "";
   const arrowWasPressed =
@@ -88,8 +98,8 @@ const handleKeydown = (event, x, y, length) => {
     event.key === "ArrowDown" ||
     event.key === "ArrowLeft";
 
-  console.log("field is blank? ", fieldIsBlank);
-  console.log("arrow was pressed?", arrowWasPressed);
+  //console.log("field is blank? ", fieldIsBlank);
+  //console.log("arrow was pressed?", arrowWasPressed);
 
   if (arrowWasPressed && !fieldIsBlank) {
     return;
@@ -99,22 +109,22 @@ const handleKeydown = (event, x, y, length) => {
     case "ArrowUp":
       newX = x;
       newY = y - 1 >= 0 ? y - 1 : y;
-      console.log("ArrowUp", x, y);
+      //console.log("ArrowUp", x, y);
       break;
     case "ArrowRight":
       newX = x + 1 <= length ? x + 1 : x;
       newY = y;
-      console.log("ArrowRight", x, y, length);
+      //console.log("ArrowRight", x, y, length);
       break;
     case "ArrowDown":
       newX = x;
       newY = y + 1 <= length ? y + 1 : y;
-      console.log("ArrowDown", x, y);
+      //console.log("ArrowDown", x, y);
       break;
     case "ArrowLeft":
       newX = x - 1 >= 0 ? x - 1 : x;
       newY = y;
-      console.log("ArrowLeft", x, y);
+      //console.log("ArrowLeft", x, y);
       break;
     default:
       break;
@@ -123,14 +133,14 @@ const handleKeydown = (event, x, y, length) => {
   moveTo(newX, newY);
 };
 
-const inputCell = (hFactor, vFactor, x, y, length) => {
+const inputCell = (hFactor, vFactor, x, y, length, operator) => {
   const location = `x${x}y${y}`;
   return `
-    <td class="input" id="${location}">
+    <td class="input" id="${location}" class="inputCell">
       <input 
         type="text" 
         class="input"
-        onblur="validateProduct(event, ${hFactor}, ${vFactor})"
+        onblur="validateAnswer(event, ${hFactor}, ${vFactor}, '${operator}')"
         onfocus="highlightFactors(${hFactor}, ${vFactor})"
         onkeypress="handleKeypress(event, ${x}, ${y}, ${length})"
         onkeydown="handleKeydown(event, ${x}, ${y}, ${length})"
@@ -159,24 +169,24 @@ const headerRow = (list) => {
   return output;
 };
 
-const gridRow = (item, hList, y) => {
+const gridRow = (item, hList, y, operator) => {
   let output = "<tr>";
 
   output += headerCell(item, "h");
   for (const [index, value] of hList.entries()) {
-    output += inputCell(item, hList[index], index, y, hList.length);
+    output += inputCell(item, hList[index], index, y, hList.length, operator);
   }
 
   output += "</tr>";
   return output;
 };
 
-const table = (hList, vList) => {
+const table = (hList, vList, operator) => {
   let output = '<table id="table" cellspacing="0">';
   output += headerRow(hList);
 
   for (const [index, item] of vList.entries()) {
-    output += gridRow(item, hList, index);
+    output += gridRow(item, hList, index, operator);
   }
 
   output += "</table>";
@@ -204,6 +214,7 @@ let elements = {
   endField: document.getElementById("end"),
   form: document.getElementById("form"),
   submitButton: document.getElementById("submit"),
+  operator: document.getElementById("operator"),
 };
 
 const renderGrid = () => {
@@ -215,9 +226,11 @@ const renderGrid = () => {
 
   const hList = shuffledList(start, end);
   const vList = shuffledList(start, end);
+  const operator = elements.operator.value;
 
   elements.submitButton.addEventListener("click", renderGrid);
-  elements.output.innerHTML = table(hList, vList);
+  elements.output.innerHTML = table(hList, vList, operator);
+  elements.operator.addEventListener("change", validateGrid);
   elements.startField.value = start;
   elements.endField.value = end;
 };

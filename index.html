@@ -10,19 +10,26 @@
       <h1>Factsmaster!</h1>
       <div id="output"></div>
       <div id="form">
-          <form>
-              <div>
-                <label for="start">Start</label>
-                <input type="number" step="1" min="1" max="100" id="start" />
-              </div>
-              <div>
-                <label for="end">End</label>
-                <input type="number" step="1" min="1" max="100" id="end" />
-              </div>
-              <input type="button" id="submit" value="Generate" />
-          </form>
-        <div>
-      <script type="text/javascript" src="main.js"></script>
-      </main>
+        <form>
+          <div>
+            <select id="operator">
+              <option value="add">Add (+)</option>
+              <option value="multiply">Multiply (⨉)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="start">Start</label>
+            <input type="number" step="1" min="1" max="100" id="start" />
+          </div>
+          <div>
+            <label for="end">End</label>
+            <input type="number" step="1" min="1" max="100" id="end" />
+          </div>
+          <input type="button" id="submit" value="Generate" />
+        </form>
+      </div>
+    </main>
+    <script type="text/javascript" src="main.js"></script>
   </body>
 </html>
