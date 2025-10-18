@@ -200,6 +200,26 @@ const elements = {
   form: document.getElementById("form"),
   submitButton: document.getElementById("submit"),
   operator: document.getElementById("operator"),
+  palette: document.getElementById("palette"),
+};
+
+const paletteClasses = {
+  default: null,
+  forest: "palette-forest",
+  sunrise: "palette-sunrise",
+  Greyscale: "Greyscale",
+};
+
+const applyPalette = (paletteKey) => {
+  const allClasses = Object.values(paletteClasses).filter(Boolean);
+  if (allClasses.length > 0) {
+    document.body.classList.remove(...allClasses);
+  }
+
+  const nextClass = paletteClasses[paletteKey] ?? null;
+  if (nextClass) {
+    document.body.classList.add(nextClass);
+  }
 };
 
 const renderGrid = () => {
@@ -221,6 +241,10 @@ const renderGrid = () => {
 window.addEventListener("DOMContentLoaded", () => {
   elements.submitButton?.addEventListener("click", renderGrid);
   elements.operator?.addEventListener("change", validateGrid);
+  elements.palette?.addEventListener("change", (event) => {
+    applyPalette(event.target.value);
+  });
+  applyPalette(elements.palette?.value ?? "default");
   renderGrid();
 });
 
