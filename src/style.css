@@ -1,3 +1,5 @@
+@import url("https://rsms.me/inter/inter.css");
+
 :root {
   --blueGray-50: #f8fafc;
   --blueGray-100: #f1f5f9;
@@ -254,8 +256,6 @@
   --cell-height: 4rem;
   --cell-width: 4rem;
 }
-
-@import url('https://rsms.me/inter/inter.css');
 
 html {
   font-family: "Inter", "Helvetica", sans-serif;

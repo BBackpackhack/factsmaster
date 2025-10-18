@@ -1,20 +1,13 @@
-/*
+import "./style.css";
 
-  TODO
-  * Detect when all fields have been filled in correctly
-  * Embed config in URL
-
-// */
 const DEFAULT_START = 1;
 const DEFAULT_END = 12;
 
-const shuffle = (a) => {
-  let array = [...a];
-  for (var i = array.length - 1; i > 0; i--) {
-    var randomIndex = Math.floor(Math.random() * (i + 1));
-    var temp = array[i];
-    array[i] = array[randomIndex];
-    array[randomIndex] = temp;
+const shuffle = (list) => {
+  const array = [...list];
+  for (let i = array.length - 1; i > 0; i--) {
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+    [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
   }
   return array;
 };
@@ -29,45 +22,43 @@ const validateAnswer = (event, hFactor, vFactor, operator) => {
   }
 
   const answerIsCorrect =
-    Number.parseInt(answer) ===
+    Number.parseInt(answer, 10) ===
     (operator === "add" ? hFactor + vFactor : hFactor * vFactor);
-
-  console.log("Answer is correct?", answerIsCorrect);
 
   if (answerIsCorrect) {
     element.classList.add("correct");
     return true;
-  } else {
-    element.classList.add("incorrect");
-    return false;
   }
+
+  element.classList.add("incorrect");
+  return false;
 };
 
 const validateGrid = () => {
-  console.log("validate grid");
-  const inputCells = document.getElementsByClassName("inputCell");
-  for (const cell of inputCells) {
-    cell.onBlur();
+  const inputs = document.querySelectorAll(".inputCell input");
+  for (const input of inputs) {
+    input.dispatchEvent(new Event("blur"));
   }
 };
 
 const highlightFactors = (hFactor, vFactor) => {
   const HIGHLIGHT_CLASS = "highlighted";
-  for (td of document.querySelectorAll("th.header")) {
-    td.classList.remove(HIGHLIGHT_CLASS);
+  for (const header of document.querySelectorAll("th.header")) {
+    header.classList.remove(HIGHLIGHT_CLASS);
   }
-  document.getElementById(`v${vFactor}`).classList.add(HIGHLIGHT_CLASS);
-  document.getElementById(`h${hFactor}`).classList.add(HIGHLIGHT_CLASS);
+  document.getElementById(`v${vFactor}`)?.classList.add(HIGHLIGHT_CLASS);
+  document.getElementById(`h${hFactor}`)?.classList.add(HIGHLIGHT_CLASS);
 };
 
 const moveTo = (x, y) => {
-  document.getElementById(`x${x}y${y}`).querySelector("input").focus();
+  document.getElementById(`x${x}y${y}`)?.querySelector("input")?.focus();
 };
 
 const handleKeypress = (event, x, y, length) => {
   switch (event.key) {
-    case "Enter":
-      let newX, newY;
+    case "Enter": {
+      let newX;
+      let newY;
 
       if (x + 1 < length) {
         newX = x + 1;
@@ -80,9 +71,9 @@ const handleKeypress = (event, x, y, length) => {
         newY = y;
       }
 
-      //console.log("Enter", newX, newY, length);
       moveTo(newX, newY);
       break;
+    }
     default:
       break;
   }
@@ -91,7 +82,6 @@ const handleKeypress = (event, x, y, length) => {
 const handleKeydown = (event, x, y, length) => {
   let newX = x;
   let newY = y;
-  //console.log(event);
 
   const fieldIsBlank = event.target.value.trim() === "";
   const arrowWasPressed =
@@ -99,9 +89,6 @@ const handleKeydown = (event, x, y, length) => {
     event.key === "ArrowRight" ||
     event.key === "ArrowDown" ||
     event.key === "ArrowLeft";
-
-  //console.log("field is blank? ", fieldIsBlank);
-  //console.log("arrow was pressed?", arrowWasPressed);
 
   if (arrowWasPressed && !fieldIsBlank) {
     return;
@@ -111,22 +98,18 @@ const handleKeydown = (event, x, y, length) => {
     case "ArrowUp":
       newX = x;
       newY = y - 1 >= 0 ? y - 1 : y;
-      //console.log("ArrowUp", x, y);
       break;
     case "ArrowRight":
       newX = x + 1 <= length ? x + 1 : x;
       newY = y;
-      //console.log("ArrowRight", x, y, length);
       break;
     case "ArrowDown":
       newX = x;
       newY = y + 1 <= length ? y + 1 : y;
-      //console.log("ArrowDown", x, y);
       break;
     case "ArrowLeft":
       newX = x - 1 >= 0 ? x - 1 : x;
       newY = y;
-      //console.log("ArrowLeft", x, y);
       break;
     default:
       break;
@@ -138,7 +121,7 @@ const handleKeydown = (event, x, y, length) => {
 const inputCell = (hFactor, vFactor, x, y, length, operator) => {
   const location = `x${x}y${y}`;
   return `
-    <td class="input" id="${location}" class="inputCell">
+    <td class="input inputCell" id="${location}">
       <input 
         type="text" 
         class="input"
@@ -146,24 +129,21 @@ const inputCell = (hFactor, vFactor, x, y, length, operator) => {
         onfocus="highlightFactors(${hFactor}, ${vFactor})"
         onkeypress="handleKeypress(event, ${x}, ${y}, ${length})"
         onkeydown="handleKeydown(event, ${x}, ${y}, ${length})"
-        />
+      />
     </td>
-    `;
+  `;
 };
 
-const blankCell = (value) => {
-  return `<th class="blank">${value}</td>`;
-};
+const blankCell = (value) => `<th class="blank">${value}</th>`;
 
-const headerCell = (value, prefix = "") => {
-  return `<th class="header" id="${prefix}${value}">${value}</td>`;
-};
+const headerCell = (value, prefix = "") =>
+  `<th class="header" id="${prefix}${value}">${value}</th>`;
 
 const headerRow = (list) => {
   let output = "<tr>";
   output += blankCell("×");
 
-  for (let item of list) {
+  for (const item of list) {
     output += headerCell(item, "v");
   }
 
@@ -176,7 +156,7 @@ const gridRow = (item, hList, y, operator) => {
 
   output += headerCell(item, "h");
   for (const [index, value] of hList.entries()) {
-    output += inputCell(item, hList[index], index, y, hList.length, operator);
+    output += inputCell(item, value, index, y, hList.length, operator);
   }
 
   output += "</tr>";
@@ -196,21 +176,24 @@ const table = (hList, vList, operator) => {
 };
 
 const shuffledList = (start, end) => {
-  if (start > end) {
-    [start, end] = [end, start];
+  let normalizedStart = start;
+  let normalizedEnd = end;
+
+  if (normalizedStart > normalizedEnd) {
+    [normalizedStart, normalizedEnd] = [normalizedEnd, normalizedStart];
   }
 
-  let list = [];
-  let length = end - start + 1;
+  const list = [];
+  const length = normalizedEnd - normalizedStart + 1;
 
   for (let i = 0; i < length; i++) {
-    list[i] = start + i;
+    list[i] = normalizedStart + i;
   }
 
-  return shuffle([...list]);
+  return shuffle(list);
 };
 
-let elements = {
+const elements = {
   output: document.getElementById("output"),
   startField: document.getElementById("start"),
   endField: document.getElementById("end"),
@@ -220,21 +203,30 @@ let elements = {
 };
 
 const renderGrid = () => {
-  let startValue = Number.parseInt(elements.startField.value);
-  let endValue = Number.parseInt(elements.endField.value);
+  const startValue = Number.parseInt(elements.startField.value, 10);
+  const endValue = Number.parseInt(elements.endField.value, 10);
 
-  let start = isNaN(startValue) ? DEFAULT_START : startValue;
-  let end = isNaN(endValue) ? DEFAULT_END : endValue;
+  const start = Number.isNaN(startValue) ? DEFAULT_START : startValue;
+  const end = Number.isNaN(endValue) ? DEFAULT_END : endValue;
 
   const hList = shuffledList(start, end);
   const vList = shuffledList(start, end);
   const operator = elements.operator.value;
 
-  elements.submitButton.addEventListener("click", renderGrid);
-  elements.output.innerHTML = table(hList, vList, operator);
-  elements.operator.addEventListener("change", validateGrid);
   elements.startField.value = start;
   elements.endField.value = end;
+  elements.output.innerHTML = table(hList, vList, operator);
 };
 
-window.addEventListener("DOMContentLoaded", renderGrid);
+window.addEventListener("DOMContentLoaded", () => {
+  elements.submitButton?.addEventListener("click", renderGrid);
+  elements.operator?.addEventListener("change", validateGrid);
+  renderGrid();
+});
+
+Object.assign(window, {
+  validateAnswer,
+  highlightFactors,
+  handleKeypress,
+  handleKeydown,
+});
