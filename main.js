@@ -44,9 +44,11 @@ const validateAnswer = (event, hFactor, vFactor, operator) => {
 };
 
 const validateGrid = () => {
-  //todo
   console.log("validate grid");
-  return;
+  const inputCells = document.getElementsByClassName("inputCell");
+  for (const cell of inputCells) {
+    cell.onBlur();
+  }
 };
 
 const highlightFactors = (hFactor, vFactor) => {
